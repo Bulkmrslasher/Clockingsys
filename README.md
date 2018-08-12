@@ -1,5 +1,5 @@
 #Time Clock
-A configurable time clock system.
+A configurable time clock system created by Grayson Martin.
 
 ##Setup
 To install all dependencies, run `npm install` in the project directory.
@@ -15,7 +15,7 @@ The IP address and port of the web server will be printed out.
 `{ip_address}:{port}/users/new` = create a new user
 `{ip_address}:{port}/users/{user_id}` = information about user with id {user_id}
 
-##Configuration
+##Configuration Options
 
 Settings can be configured at `/settings`.
 
