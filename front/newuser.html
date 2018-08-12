@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Time Clock - New User</title>
+  <link rel="stylesheet" href="/css/users.css">
+  <link rel="stylesheet" href="/css/sky.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+</head>
+
+<body>
+  <div class="header">
+    <h1>New User</h1><div class="sky-button-group"><button class="sky-button-standard" onclick="window.open('/settings', '_self')">Settings</button><button class="sky-button-standard" onclick="window.open('/users', '_self')">Users</button><button class="sky-button-standard active">New User</button></div>
+  </div>
+  <div id="errors"></div>
+  <div id="newuser">
+    <label for="firstName">First Name: </label><input id="firstName" type="text"><br>
+    <label for="lastName">Last Name: </label><input id="lastName" type="text"><br>
+    <button class="sky-button-standard" onclick="submit()">Submit</button>
+  </div>
+</body>
+</html>
+<script type="text/javascript">
+
+  function submit() {
+    let firstName = document.getElementById('firstName').value
+    let lastName = document.getElementById('lastName').value
+    if (firstName && lastName) {
+      document.getElementById('firstName').disabled = true
+      document.getElementById('lastName').disabled = true
+      let name = firstName + " " + lastName
+      sendDataToServer({
+        "job": "newUser",
+        "data": {
+          "name": name
+        }
+      })
+    } else {
+      showError("No name.")
+    }
+  }
+
+  var ws = new WebSocket("ws://" + serverip + ":8001");
+
+  ws.onopen = function() {};
+
+  ws.onmessage = function(evt) {
+    var received_msg = evt.data;
+    var json_data = JSON.parse(received_msg)
+    if (json_data.job == "newUserResponse") {
+      window.open("/users","_self")
+    }
+  };
+
+  ws.onclose = function() {
+
+    // websocket is closed.
+    showError("The connection to the server has failed. Try reloading the page.");
+  };
+
+	window.addEventListener('beforeunload', function() {
+		ws.close()
+	})
+
+  function sendDataToServer(data) {
+    ws.send(JSON.stringify(data));
+  }
+
+  function showError(text) {
+    document.getElementById('errors').innerHTML += "<div class=\"sky-alert-message red\">" + text + "</div>"
+  }
+</script>

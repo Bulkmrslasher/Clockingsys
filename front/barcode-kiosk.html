@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Time Clock</title>
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/sky.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+</head>
+
+<body>
+  <div class="header">
+    <h1>Time Clock</h1>
+  </div>
+  <div id="errors"></div>
+  <table id="clockedUsers">
+    <tr>
+      <th>Name</th>
+      <th>Session Time</th>
+    </tr>
+  </table>
+  <input id="barcodeInput" autofocus="autofocus" onkeypress="enterPressed(event)">
+</body>
+
+</html>
+<script type="text/javascript">
+  var ws = new WebSocket("ws://" + serverip + ":8001");
+
+  ws.onopen = function() {
+    sendDataToServer({
+      "job": "subscribeToClock"
+    })
+  };
+
+  ws.onmessage = function(evt) {
+    var received_msg = evt.data;
+    var json_data = JSON.parse(received_msg)
+    if (json_data.job == "updateDisplay") {
+      setTableData(json_data.data)
+    }
+  };
+
+  ws.onclose = function() {
+
+    // websocket is closed.
+    showError("The connection to the server has failed. Try reloading the page.");
+  };
+
+  function sendDataToServer(data) {
+    ws.send(JSON.stringify(data));
+  }
+
+  document.getElementById('barcodeInput').addEventListener('focusout', function() {
+    document.getElementById('barcodeInput').focus()
+    document.getElementById('barcodeInput').select()
+  })
+
+	window.addEventListener('beforeunload', function() {
+		ws.close()
+	})
+
+  function enterPressed(e) {
+    if (e.keyCode == 13) {
+      sendDataToServer({
+        "job": "codeScanned",
+        "data": {
+          "barcodeData": document.getElementById('barcodeInput').value
+        }
+      })
+      document.getElementById('barcodeInput').value = ""
+    }
+  }
+
+  function setTableData(data) {
+    let tableHTML = ""
+    for (var i = 0; i < data.length; i++) {
+      let personData = data[i]
+      let name = personData.name
+      let time = minutesToPrettyTime(personData.time)
+      let html = "<tr><td class=\"name\">" + name + "</td><td class=\"time\">" + time + "</td></tr>"
+      tableHTML += html
+    }
+    document.getElementById("clockedUsers").innerHTML = "<tr><th>Name</th><th>Session Time</th></tr>" + tableHTML
+  }
+
+  function minutesToPrettyTime(min) {
+    let hours = Math.floor(min / 60)
+    let minutes = min % 60
+    let prettyMinutes = ""
+    switch (minutes) {
+      case 0:
+        prettyMinutes = "00"
+        break;
+      case 1:
+        prettyMinutes = "01"
+        break;
+      case 2:
+        prettyMinutes = "02"
+        break;
+      case 3:
+        prettyMinutes = "03"
+        break;
+      case 4:
+        prettyMinutes = "04"
+        break;
+      case 5:
+        prettyMinutes = "05"
+        break;
+      case 6:
+        prettyMinutes = "06"
+        break;
+      case 7:
+        prettyMinutes = "07"
+        break;
+      case 8:
+        prettyMinutes = "08"
+        break;
+      case 9:
+        prettyMinutes = "09"
+        break;
+      default:
+        prettyMinutes = minutes
+    }
+    let string = hours + ":" + prettyMinutes
+    return string
+  }
+
+  function showError(text) {
+    document.getElementById('errors').innerHTML += "<div class=\"sky-alert-message red\">" + text + "</div><br>"
+  }
+</script>

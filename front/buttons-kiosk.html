@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Time Clock</title>
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/sky.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <script src="./signature_pad.js" charset="utf-8"></script>
+</head>
+
+<body>
+  <div class="header">
+    <h1>Time Clock</h1><button class="sky-button-big" onclick="toggleClockInMenu()">Clock In/Out</button>
+  </div>
+  <div id="errors"></div>
+  <table id="clockedUsers" class="buttonsKiosk">
+    <tr>
+      <th>Name</th>
+      <th>Session Time</th>
+    </tr>
+  </table>
+  <div class="overlay">
+    <div class="clockInMenu">
+      <h1>Clock In/Out</h1>
+      <br>
+      <select id="clockInPicker">
+        <option value="pick" selected disabled>Select your name</option>
+      </select><br>
+      <button class="sky-button-big" onclick="clockInSelectedUser()">Clock In/Out</button><button class="sky-button-big cancel" onclick="toggleClockInMenu()">Cancel</button><br>
+      <button class="sky-button-big" onclick="clockOutAll()">Clock Out Everyone</button>
+    </div>
+  </div>
+  <div class="waiverOverlay">
+    <div class="waiverMenu">
+
+    </div>
+  </div>
+</body>
+
+</html>
+<script type="text/javascript">
+  var ws = new WebSocket("ws://" + serverip + ":8001");
+
+  var signaturePad;
+  var currentWaiverUser;
+
+  ws.onopen = function() {
+    sendDataToServer({
+      "job": "subscribeToClock"
+    })
+    sendDataToServer({
+      "job": "getAllUsers",
+      "data": {
+        "subscribe": true
+      }
+    })
+  };
+
+  ws.onmessage = function(evt) {
+    var received_msg = evt.data;
+    var json_data = JSON.parse(received_msg)
+    if (json_data.job == "updateDisplay") {
+      setTableData(json_data.data)
+    } else if (json_data.job == "allUsers") {
+      setClockInSelectData(json_data.data)
+    } else if (json_data.job == "promptForWaiver") {
+      promptForWaiver(json_data.data)
+    }
+  };
+
+  ws.onclose = function() {
+
+    // websocket is closed.
+    showError("The connection to the server has failed. Try reloading the page.");
+  };
+
+	window.addEventListener('beforeunload', function() {
+		ws.close()
+	})
+
+  function sendDataToServer(data) {
+    ws.send(JSON.stringify(data));
+  }
+
+  function clockOutAll() {
+    sendDataToServer({
+      "job": "codeScanned",
+      "data": {
+        "barcodeData": "LOGOUTALL"
+      }
+    })
+    toggleClockInMenu()
+  }
+
+  function clockInSelectedUser() {
+    var user_id = document.getElementById("clockInPicker").value
+    if (user_id !== "pick") {
+      sendDataToServer({
+        "job": "codeScanned",
+        "data": {
+          "barcodeData": user_id
+        }
+      })
+      toggleClockInMenu()
+    }
+  }
+
+  function promptForWaiver(waiverPrompt) {
+    toggleWaiverMenu()
+    let user = waiverPrompt.user
+    let waiverText = waiverPrompt.waiverText
+    currentWaiverUser = user
+    document.getElementsByClassName("waiverMenu")[0].innerHTML = "<h1>Waiver</h1><br><p>" + user.name + "</p><br><textarea rows=\"15\" disabled>" + waiverText + "</textarea><br><br><canvas height=\"180\" width=\"518\"></canvas><br><br><p>Sign above. <button class=\"sky-button-standard\" onclick=\"signaturePad.clear()\">Clear Signature</button></p><br><br><button class=\"sky-button-big\" onclick=\"submitWaiver()\">Submit</button>"
+    var canvas = document.querySelector("canvas");
+    signaturePad = new SignaturePad(canvas);
+  }
+
+  function setTableData(data) {
+    let tableHTML = ""
+    for (var i = 0; i < data.length; i++) {
+      let personData = data[i]
+      let name = personData.name
+      let time = minutesToPrettyTime(personData.time)
+      let html = "<tr><td class=\"name\">" + name + "</td><td class=\"time\">" + time + "</td></tr>"
+      tableHTML += html
+    }
+    document.getElementById("clockedUsers").innerHTML = "<tr><th>Name</th><th>Session Time</th></tr>" + tableHTML
+  }
+
+  function setClockInSelectData(data) {
+    let selectHTML = "<option value=\"pick\" disabled selected>Select your name</option>"
+    for (var i = 0; i < data.length; i++) {
+      let personName = data[i].name
+      let user_id = data[i].user_id
+      selectHTML += "<option value=\"" + user_id + "\">" + personName + "</option>"
+    }
+    document.getElementById("clockInPicker").innerHTML = selectHTML
+  }
+
+  function toggleClockInMenu() {
+    el = document.getElementsByClassName("overlay")[0]
+    el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+    document.getElementById("clockInPicker").value = "pick"
+  }
+
+  function toggleWaiverMenu() {
+    el = document.getElementsByClassName("waiverOverlay")[0]
+    el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+    el.style.position = (el.style.position == "absolute") ? "fixed" : "absolute";
+  }
+
+  document.getElementsByClassName('overlay')[0].addEventListener("click", clickOverlay)
+
+  function clickOverlay(event) {
+    if (event.target == document.getElementsByClassName('overlay')[0]) {
+      toggleClockInMenu()
+    }
+  }
+
+  function submitWaiver() {
+    if (!signaturePad.isEmpty()) {
+      let date = new Date();
+      let signaturePadData = signaturePad.toDataURL()
+      sendDataToServer({
+        "job": "submitWaiver",
+        "data": {
+          "user": currentWaiverUser,
+          "date": date,
+          "signatureImage": signaturePadData
+        }
+      })
+      sendDataToServer({
+        "job": "codeScanned",
+        "data": {
+          "barcodeData": currentWaiverUser.user_id
+        }
+      })
+      toggleWaiverMenu()
+    } else {
+      alert("No signature.")
+    }
+  }
+
+  function minutesToPrettyTime(min) {
+    let hours = Math.floor(min / 60)
+    let minutes = min % 60
+    let prettyMinutes = ""
+    switch (minutes) {
+      case 0:
+        prettyMinutes = "00"
+        break;
+      case 1:
+        prettyMinutes = "01"
+        break;
+      case 2:
+        prettyMinutes = "02"
+        break;
+      case 3:
+        prettyMinutes = "03"
+        break;
+      case 4:
+        prettyMinutes = "04"
+        break;
+      case 5:
+        prettyMinutes = "05"
+        break;
+      case 6:
+        prettyMinutes = "06"
+        break;
+      case 7:
+        prettyMinutes = "07"
+        break;
+      case 8:
+        prettyMinutes = "08"
+        break;
+      case 9:
+        prettyMinutes = "09"
+        break;
+      default:
+        prettyMinutes = minutes
+    }
+    let string = hours + ":" + prettyMinutes
+    return string
+  }
+
+  function showError(text) {
+    document.getElementById('errors').innerHTML += "<div class=\"sky-alert-message red\">" + text + "</div><br>"
+  }
+</script>

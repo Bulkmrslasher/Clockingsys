@@ -1,0 +1,123 @@
+body {
+  background-color: #323232;
+}
+
+*:not(button):not(input) {
+  padding: 0;
+  margin: 0;
+  color: white !important;
+}
+
+.header {
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #191919;
+}
+
+.header > h1 {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 40px;
+}
+
+.header > .sky-button-group {
+  position: absolute;
+  top: 26px;
+  right: 30px;
+}
+
+#users {
+  margin: 0 20px;
+  left: 0;
+  right: 0;
+  border-collapse: collapse;
+}
+
+#users th {
+  width: calc(100vw / 2);
+  padding: 20px 0;
+  font-size: 30px;
+}
+
+#users td, th {
+  border-bottom: 1px solid #666;
+  padding: 12px;
+  text-align: center;
+  font-size: 20px;
+}
+
+#users tr.user {
+  cursor: pointer;
+}
+
+#newuser {
+  padding: 20px 30px;
+}
+
+#newuser input {
+  border-radius: 5px;
+  padding: 3px;
+  border: none;
+}
+
+#newuser button {
+  margin: 10px 0;
+}
+
+#newuser button, input {
+  color: black;
+}
+
+.userInfo {
+  padding: 0 20px;
+}
+
+.userInfo h3#name {
+  padding: 0 0 10px 0;
+}
+
+.userInfo p#totalTime {
+  padding: 0 0 10px 0;
+}
+
+.userInfo #barcode {
+  cursor: pointer;
+}
+
+#errors {
+  padding: 20px 20px;
+}
+
+#waiverInfo #waiverSignature {
+  background-color: white;
+  border: solid 1px #ccc;
+  border-radius: 3px;
+  margin: 10px 0;
+  width: 400px;
+  height: auto;
+}
+
+#settings {
+  padding: 20px 30px;
+
+}
+
+#settings #waiverText {
+  color: black !important;
+  padding: 5px 4px;
+}
+
+#settings .settingsSection {
+  margin-bottom: 20px;
+  padding: 10px 0;
+  border-top: #FFF solid 1px;
+}
+
+#settings .settingsSection h3.label {
+  margin: 0 0 5px 0;
+}
+
+#settings .settingsSection:last-of-type {
+  border-bottom: #FFF solid 1px;
+}

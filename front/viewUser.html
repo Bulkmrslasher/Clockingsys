@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Time Clock - View User</title>
+  <link rel="stylesheet" href="/css/users.css">
+  <link rel="stylesheet" href="/css/sky.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+</head>
+<body>
+  <div class="header">
+    <h1>View User</h1><div class="sky-button-group"><button class="sky-button-standard" onclick="window.open('/settings', '_self')">Settings</button><button class="sky-button-standard" onclick="window.open('/users', '_self')">Users</button><button class="sky-button-standard" onclick="window.open('/users/new', '_self')">New User</button></div>
+  </div>
+  <div id="errors"></div>
+  <div class="userInfo">
+    <h3 id="name"></h3>
+    <p id="totalTime"></p>
+    <h4>Waiver Information</h4>
+    <div id="waiverInfo">
+      <p>Waiver Signature:</p>
+      <img id="waiverSignature">
+      <p id="waiverDate">Waiver Sign Date: </p>
+    </div>
+    <br>
+    <img id="barcode">
+    <br><br>
+    <button id="deleteButton" class="sky-button-standard" onclick="deleteUser()">Delete User</button>
+  </div>
+</body>
+</html>
+<script type="text/javascript">
+
+  function deleteUser() {
+    if (document.getElementById('deleteButton').innerHTML == "Delete User") {
+      document.getElementById('deleteButton').innerHTML = "Confirm Delete?"
+    } else if (document.getElementById('deleteButton').innerHTML == "Confirm Delete?") {
+      sendDataToServer({
+        "job": "deleteUser",
+        "data": {
+          "user_id": user_id
+        }
+      })
+    }
+  }
+
+  var ws = new WebSocket("ws://" + serverip + ":8001");
+
+  ws.onopen = function() {
+    sendDataToServer({
+      "job": "getUserInfo",
+      "data": {
+        "user_id": user_id
+      }
+    })
+  };
+
+  ws.onmessage = function(evt) {
+    var received_msg = evt.data;
+    var json_data = JSON.parse(received_msg)
+    if (json_data.job == "userData") {
+      let name = json_data.data.name
+      let totalTime = json_data.data.totalTime
+      document.getElementById('name').innerHTML = name
+      document.getElementById('totalTime').innerHTML = "Total Time: " + minutesToPrettyTime(totalTime)
+      document.getElementById('barcode').src = "http://" + serverip + ":8000/barcode?bcid=code128&text=" + user_id
+      document.getElementById('barcode').onclick = function() {
+        window.open("http://" + serverip + ":8000/barcode?bcid=code128&text=" + user_id)
+      }
+      if (json_data.data.hasSignedWaiver) {
+        document.getElementById('waiverSignature').src = json_data.data.waiverData.signatureImage
+        document.getElementById('waiverDate').innerHTML = "Waiver Sign Date: " + json_data.data.waiverData.date
+      } else {
+        document.getElementById('waiverInfo').innerHTML = "<p>User has not signed waiver.</p>"
+      }
+    } else if (json_data.job == "deleteUserResponse") {
+      window.open('/users','_self')
+    }
+  };
+
+  ws.onclose = function() {
+
+    // websocket is closed.
+    showError("The connection to the server has failed. Try reloading the page.");
+  };
+
+	window.addEventListener('beforeunload', function() {
+		ws.close()
+	})
+
+  function sendDataToServer(data) {
+    ws.send(JSON.stringify(data));
+  }
+
+  function minutesToPrettyTime(min) {
+    let hours = Math.floor(min / 60)
+    let minutes = min % 60
+    let prettyMinutes = ""
+    switch (minutes) {
+      case 0:
+        prettyMinutes = "00"
+        break;
+      case 1:
+        prettyMinutes = "01"
+        break;
+      case 2:
+        prettyMinutes = "02"
+        break;
+      case 3:
+        prettyMinutes = "03"
+        break;
+      case 4:
+        prettyMinutes = "04"
+        break;
+      case 5:
+        prettyMinutes = "05"
+        break;
+      case 6:
+        prettyMinutes = "06"
+        break;
+      case 7:
+        prettyMinutes = "07"
+        break;
+      case 8:
+        prettyMinutes = "08"
+        break;
+      case 9:
+        prettyMinutes = "09"
+        break;
+      default:
+        prettyMinutes = minutes
+    }
+    let string = hours + ":" + prettyMinutes
+    return string
+  }
+
+  function showError(text) {
+    document.getElementById('errors').innerHTML += "<div class=\"sky-alert-message red\">" + text + "</div>"
+  }
+</script>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Time Clock - Settings</title>
+  <link rel="stylesheet" href="/css/users.css">
+  <link rel="stylesheet" href="/css/sky.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+</head>
+
+<body>
+  <div class="header settings">
+    <h1>Settings</h1><div class="sky-button-group"><button class="sky-button-standard active">Settings</button><button class="sky-button-standard" onclick="window.open('/users', '_self')">Users</button><button class="sky-button-standard" onclick="window.open('/users/new', '_self')">New User</button></div>
+  </div>
+  <div id="errors">
+  </div>
+  <div id="settings">
+    <div class="settingsSection">
+      <h3 class="label">Kiosk Settings</h3>
+      <label for="kioskMode">Kiosk Mode: </label><select id="kioskMode"><option value="barcode">Barcode Reader</option><option value="buttons">Touchscreen/Mouse</option></select>
+    </div>
+    <div class="settingsSection">
+      <h3 class="label">Waiver Configuration</h3>
+      <div class="sky-alert-message">Note: Waivers can only be used on Touchscreen/Mouse mode.</div><br>
+      <label for="requiresWaiver">Require Waiver: </label><input id="requiresWaiver" type="checkbox"><br><br>
+      <label for="waiverText">Waiver Text: </label><br><textarea id="waiverText" cols="100" rows="20"></textarea><br><br>
+    </div>
+    <button class="sky-button-standard" onclick="submit()">Save Changes</button>
+  </div>
+</body>
+</html>
+<script type="text/javascript">
+
+  function submit() {
+    sendDataToServer({
+      "job": "updateSettings",
+      "data": {
+        "kioskType": document.getElementById('kioskMode').value,
+        "requireWaiver": document.getElementById('requiresWaiver').checked,
+        "waiverText": document.getElementById('waiverText').value
+      }
+    })
+    showMessage("Settings updated")
+  }
+
+  var ws = new WebSocket("ws://" + serverip + ":8001");
+
+  ws.onopen = function() {
+    sendDataToServer({
+      "job": "getCurrentSettings"
+    })
+  };
+
+  ws.onmessage = function(evt) {
+    var received_msg = evt.data;
+    var json_data = JSON.parse(received_msg)
+    if (json_data.job == "currentSettings") {
+      document.getElementById('kioskMode').value = json_data.data.kioskType
+      document.getElementById('requiresWaiver').checked = json_data.data.requireWaiver
+      document.getElementById('waiverText').value = json_data.data.waiverText
+    }
+  };
+
+  ws.onclose = function() {
+
+    // websocket is closed.
+    showError("The connection to the server has failed. Try reloading the page.");
+  };
+
+	window.addEventListener('beforeunload', function() {
+		ws.close()
+	})
+
+  function sendDataToServer(data) {
+    ws.send(JSON.stringify(data));
+  }
+
+  function showError(text) {
+    document.getElementById('errors').innerHTML += "<div class=\"sky-alert-message red\">" + text + "</div>"
+  }
+
+  function showMessage(text) {
+    document.getElementById('errors').innerHTML += "<div class=\"sky-alert-message green\">" + text + "</div>"
+  }
+</script>

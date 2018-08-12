@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Time Clock - Users</title>
+  <link rel="stylesheet" href="/css/users.css">
+  <link rel="stylesheet" href="/css/sky.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+</head>
+
+<body>
+  <div class="header">
+    <h1>Users</h1><div class="sky-button-group"><button class="sky-button-standard" onclick="window.open('/settings', '_self')">Settings</button><button class="sky-button-standard active">Users</button><button class="sky-button-standard" onclick="window.open('/users/new', '_self')">New User</button></div>
+  </div>
+  <div id="errors"></div>
+  <table id="users">
+    <tr>
+      <th>Name</th>
+      <th>Total Time</th>
+    </tr>
+  </table>
+</body>
+</html>
+<script type="text/javascript">
+  var ws = new WebSocket("ws://" + serverip + ":8001");
+
+  ws.onopen = function() {
+
+    sendDataToServer({
+      "job": "getAllUsers",
+      "data": {
+        "subscribe": false
+      }
+    })
+  };
+
+  ws.onmessage = function(evt) {
+    var received_msg = evt.data;
+    var json_data = JSON.parse(received_msg)
+    if (json_data.job == "allUsers") {
+      setTableData(json_data.data)
+    }
+  };
+
+  ws.onclose = function() {
+
+    // websocket is closed.
+    showError("The connection to the server has failed. Try reloading the page.");
+  };
+
+	window.addEventListener('beforeunload', function() {
+		ws.close()
+	})
+
+  function sendDataToServer(data) {
+    ws.send(JSON.stringify(data));
+  }
+
+  function setTableData(data) {
+    let tableHTML = ""
+    for (var i = 0; i < data.length; i++) {
+      let personData = data[i]
+      let name = personData.name
+      let time = minutesToPrettyTime(personData.totalTime)
+      let barcode = personData.user_id
+      let html = "<tr onclick=\"window.open('/users/" + barcode + "', '_self')\" class=\"user\"><td class=\"name\">" + name + "</td><td class=\"time\">" + time + "</td></tr>"
+      tableHTML += html
+    }
+    document.getElementById("users").innerHTML = "<tr><th>Name</th><th>Total Time</th></tr>" + tableHTML + "<tr class=\"user\" onclick=\"window.open('http://" + serverip + ":8000/barcode?bcid=code128&text=LOGOUTALL')\"><td>Log Out Everyone</td><td></td></tr>"
+  }
+
+  function minutesToPrettyTime(min) {
+    let hours = Math.floor(min / 60)
+    let minutes = min % 60
+    let prettyMinutes = ""
+    switch (minutes) {
+      case 0:
+        prettyMinutes = "00"
+        break;
+      case 1:
+        prettyMinutes = "01"
+        break;
+      case 2:
+        prettyMinutes = "02"
+        break;
+      case 3:
+        prettyMinutes = "03"
+        break;
+      case 4:
+        prettyMinutes = "04"
+        break;
+      case 5:
+        prettyMinutes = "05"
+        break;
+      case 6:
+        prettyMinutes = "06"
+        break;
+      case 7:
+        prettyMinutes = "07"
+        break;
+      case 8:
+        prettyMinutes = "08"
+        break;
+      case 9:
+        prettyMinutes = "09"
+        break;
+      default:
+        prettyMinutes = minutes
+    }
+    let string = hours + ":" + prettyMinutes
+    return string
+  }
+
+  function showError(text) {
+    document.getElementById('errors').innerHTML += "<div class=\"sky-alert-message red\">" + text + "</div><br>"
+  }
+</script>

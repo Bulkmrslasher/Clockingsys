@@ -1,0 +1,138 @@
+body {
+  background-color: #323232;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  color: white !important;
+}
+
+.header {
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #191919;
+}
+
+.header > h1 {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 40px;
+}
+
+#clockedUsers {
+  margin: 0 20px;
+  left: 0;
+  right: 0;
+  border-collapse: collapse;
+}
+
+#clockedUsers th {
+  width: calc(100vw / 2);
+  padding: 20px 0;
+  font-size: 30px;
+}
+
+#clockedUsers td, th {
+  border-bottom: 1px solid #666;
+  padding: 20px 12px;
+  text-align: center;
+  font-size: 20px;
+}
+
+#barcodeInput {
+  color: black;
+  position: fixed;
+  bottom: -100px;
+}
+
+#errors {
+  padding: 20px 20px;
+}
+
+.header > button.sky-button-big {
+  position: absolute;
+  top: 14.5px;
+  right: 50px;
+  color: black !important;
+}
+
+div.overlay {
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+div.overlay div.clockInMenu {
+  position: fixed;
+  top: 100px;
+  width: 40vw;
+  left: 30vw;
+  background-color: white;
+  border: solid 1px #ccc;
+  border-radius: 3px;
+  padding: 20px 10px;
+  text-align: center;
+  justify-content: center;
+}
+
+div.overlay div.clockInMenu button {
+  margin-top: 30px;
+}
+
+div.overlay div.clockInMenu button.cancel {
+  margin-left: 10px;
+}
+
+div.overlay div.clockInMenu select {
+  margin-top: 20px;
+}
+
+div.overlay div.clockInMenu #clockInPicker {
+  font-size: 50px;
+}
+
+div.overlay div.clockInMenu * {
+  color: black !important;
+}
+
+div.waiverOverlay {
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+div.waiverOverlay div.waiverMenu {
+  position: absolute;
+  top: 50px;
+  width: 40vw;
+  left: 30vw;
+  background-color: white;
+  border: solid 1px #ccc;
+  border-radius: 3px;
+  padding: 20px 10px;
+  text-align: center;
+  justify-content: center;
+}
+
+div.waiverOverlay div.waiverMenu canvas {
+  border: solid 1px #ccc;
+  border-radius: 3px;
+}
+
+div.waiverOverlay div.waiverMenu textarea {
+  width: calc(40vw - 20px);
+}
+
+div.waiverOverlay div.waiverMenu * {
+  color: black !important;
+}

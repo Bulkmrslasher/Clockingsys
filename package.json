@@ -1,0 +1,16 @@
+{
+  "name": "timeclock",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Grayson Martin",
+  "license": "MIT",
+  "dependencies": {
+    "bwip-js": "^1.7.0",
+    "ip": "^1.1.5",
+    "nodejs-websocket": "^1.7.1"
+  }
+}
