@@ -17,37 +17,37 @@ const httpServer = http.createServer(function(req, res) {
     if (databaseData.kioskType == "barcode") {
       res.writeHead(200)
       res.write('<script>let serverip = \"' + serverIP + '\"</script>')
-      res.end(fs.readFileSync('../front/barcode-kiosk.html'))
+      res.end(fs.readFileSync('front/barcode-kiosk.html'))
     } else if (databaseData.kioskType == "buttons") {
       res.writeHead(200)
       res.write('<script>let serverip = \"' + serverIP + '\"</script>')
-      res.end(fs.readFileSync('../front/buttons-kiosk.html'))
+      res.end(fs.readFileSync('front/buttons-kiosk.html'))
     } else {
       res.writeHead(500)
       res.end("Error 500 Internal Server Error: Kiosk Type has not been configured.")
     }
   } else if (uri == "/css/index.css") {
     res.writeHead(200)
-    res.end(fs.readFileSync('../front/css/index.css'))
+    res.end(fs.readFileSync('front/css/index.css'))
   } else if (uri == "/users") {
     res.writeHead(200)
     res.write('<script>let serverip = \"' + serverIP + '\"</script>')
-    res.end(fs.readFileSync('../front/users.html'))
+    res.end(fs.readFileSync('front/users.html'))
   } else if (uri == "/settings") {
     res.writeHead(200)
     res.write('<script>let serverip = \"' + serverIP + '\"</script>')
-    res.end(fs.readFileSync('../front/settings.html'))
+    res.end(fs.readFileSync('front/settings.html'))
   } else if (uri == "/users/new") {
     res.writeHead(200)
     res.write('<script>let serverip = \"' + serverIP + '\"</script>')
-    res.end(fs.readFileSync('../front/newuser.html'))
+    res.end(fs.readFileSync('front/newuser.html'))
   } else if (uri.match(/\/users\/(.*)/gi)) {
     let userID = uri.replace(/\/users\/(.*)/gi,"$1")
     if (doesUserExist(userID)) {
       res.writeHead(200)
       res.write('<script>let serverip = \"' + serverIP + '\"</script>')
       res.write("<script>let user_id = \"" + userID + "\"</script>")
-      res.end(fs.readFileSync('../front/viewUser.html'))
+      res.end(fs.readFileSync('front/viewUser.html'))
     } else {
       res.writeHead(404)
       res.write("No user exists with the user id: " + userID)
@@ -55,13 +55,13 @@ const httpServer = http.createServer(function(req, res) {
     }
   } else if (uri == "/css/users.css") {
     res.writeHead(200)
-    res.end(fs.readFileSync('../front/css/users.css'))
+    res.end(fs.readFileSync('front/css/users.css'))
   } else if (uri == "/css/sky.css") {
     res.writeHead(200)
-    res.end(fs.readFileSync('../front/css/sky.css'))
+    res.end(fs.readFileSync('front/css/sky.css'))
   } else if (uri == "/signature_pad.js") {
     res.writeHead(200)
-    res.end(fs.readFileSync('../front/signature_pad.js'))
+    res.end(fs.readFileSync('front/signature_pad.js'))
   } else if (uri == "/barcode") {
     bwipjs(req, res)
   } else {
