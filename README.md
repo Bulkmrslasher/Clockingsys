@@ -1,6 +1,8 @@
 # Time Clock
 A configurable time clock system created by Grayson Martin.
 
+Features include waivers, barcode clocking, mouse/touchscreen clocking, and more.
+
 ## Install
 * Clone the repo.
 * Install dependencies (`npm install`).
