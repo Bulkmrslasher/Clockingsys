@@ -1,19 +1,23 @@
 # Time Clock
 A configurable time clock system created by Grayson Martin.
 
-## Setup
-To install all dependencies, run `npm install` in the project directory.
+## Install
+* Clone the repo.
+* Install dependencies (`npm install`).
 
 ## Run
-To run the server, run `node index.js` in the project directory.
+* Run `node index.js` in the project directory.
 
-The IP address and port of the web server will be printed out.
+The IP address of the web server will be printed out.
 
-`{ip_address}:{port}/` = main kiosk page  
-`{ip_address}:{port}/settings` = configuration page  
-`{ip_address}:{port}/users` = user management  
-`{ip_address}:{port}/users/new` = create a new user  
-`{ip_address}:{port}/users/{user_id}` = information about user with id {user_id}  
+The web server port is set to 8000 and the socket port is 8001.
+
+* `{ip_address}:8000/` = main kiosk page
+* `{ip_address}:8000/settings` = configuration page
+* `{ip_address}:8000/users` = user management
+* `{ip_address}:8000/users/new` = create a new user
+* `{ip_address}:8000/users/{user_id}` = information about user with id {user_id}
+* `{ip_address}:8000/barcode` = barcode generator (used automatically by the user info page)
 
 ## Configuration Options
 
