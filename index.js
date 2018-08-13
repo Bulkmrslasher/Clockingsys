@@ -1,5 +1,3 @@
-'use strict';
-
 var ws = require("nodejs-websocket")
 var fs = require("fs")
 var http = require("http"),
@@ -95,19 +93,15 @@ function doesUserExist(user_id) {
 }
 
 function getUser(user_id) {
-  refreshDatabaseData()
   for (var i = 0; i < databaseData.users.length; i++) {
     if (databaseData.users[i].user_id == user_id) {
-      let userData = databaseData.users[i]
+      var userData = databaseData.users[i]
       let totalTime = 0;
       for (var j = 0; j < userData.timeEvents.length; j++) {
         totalTime += userData.timeEvents[j].time
       }
       userData.totalTime = totalTime
-      userData.timeEvents = null
       return userData
-    } else {
-      return null
     }
   }
 }
