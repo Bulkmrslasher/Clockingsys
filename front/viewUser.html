@@ -18,6 +18,7 @@
   <div class="userInfo">
     <h3 id="name"></h3>
     <p id="totalTime"></p>
+    <table id="timeBreakdown"></table><br>
     <h4>Waiver Information</h4>
     <div id="waiverInfo">
       <p>Waiver Signature:</p>
@@ -57,14 +58,17 @@
     })
   };
 
+  let userData = {}
+
   ws.onmessage = function(evt) {
     var received_msg = evt.data;
     var json_data = JSON.parse(received_msg)
     if (json_data.job == "userData") {
+      userData = json_data.data
       let name = json_data.data.name
       let totalTime = json_data.data.totalTime
       document.getElementById('name').innerHTML = name
-      document.getElementById('totalTime').innerHTML = "Total Time: " + minutesToPrettyTime(totalTime)
+      document.getElementById('totalTime').innerHTML = "Total Time: " + minutesToPrettyTime(totalTime) + " <a href=\"javascript:showTimeBreakdown()\">View Breakdown</a>"
       document.getElementById('barcode').src = "http://" + serverip + ":8000/barcode?bcid=code128&text=" + user_id
       document.getElementById('barcode').onclick = function() {
         window.open("http://" + serverip + ":8000/barcode?bcid=code128&text=" + user_id)
@@ -92,6 +96,22 @@
 
   function sendDataToServer(data) {
     ws.send(JSON.stringify(data));
+  }
+
+  function showTimeBreakdown() {
+    let timeEvents = userData.timeEvents
+    let tableHtml = ""
+    for (var i = 0; i < timeEvents.length; i++) {
+      let rowHtml = "<tr><td>" + new Date(timeEvents[i].startTime*1000).toUTCString() + "</td><td>" + minutesToPrettyTime(timeEvents[i].time) + "</td></tr>"
+      tableHtml += rowHtml
+    }
+    document.getElementById('timeBreakdown').innerHTML = "<tr><th>Clock In Time</th><th>Duration</th></tr>" + tableHtml + "<tr><td><b>Total</b></td><td>" + minutesToPrettyTime(userData.totalTime) + "</td></tr>"
+    document.getElementById('totalTime').innerHTML = "Total Time: " + minutesToPrettyTime(userData.totalTime) + " <a href=\"javascript:hideTimeBreakdown()\">Hide Breakdown</a>"
+  }
+
+  function hideTimeBreakdown() {
+    document.getElementById('timeBreakdown').innerHTML = ""
+    document.getElementById('totalTime').innerHTML = "Total Time: " + minutesToPrettyTime(userData.totalTime) + " <a href=\"javascript:showTimeBreakdown()\">View Breakdown</a>"
   }
 
   function minutesToPrettyTime(min) {

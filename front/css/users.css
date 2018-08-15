@@ -5,7 +5,11 @@ body {
 *:not(button):not(input) {
   padding: 0;
   margin: 0;
-  color: white !important;
+  color: white;
+}
+
+a {
+  color: #00a8ff !important;
 }
 
 .header {
@@ -120,4 +124,15 @@ body {
 
 #settings .settingsSection:last-of-type {
   border-bottom: #FFF solid 1px;
+}
+
+table#timeBreakdown {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+}
+
+table#timeBreakdown td, table#timeBreakdown th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
 }
